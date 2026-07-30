@@ -40,3 +40,13 @@ model DeliveryConfig {
   config    String
   updatedAt DateTime @updatedAt
 }
+
+// Per-shop integration credentials (Odoo etc.). API key is stored encrypted.
+model Integration {
+  shop       String   @id
+  odooUrl    String?
+  odooDb     String?
+  odooLogin  String?
+  odooKeyEnc String?
+  updatedAt  DateTime @updatedAt
+}

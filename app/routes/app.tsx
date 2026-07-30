@@ -25,6 +25,7 @@ export default function App() {
           Home
         </Link>
         <Link to="/app/delivery">Delivery rules</Link>
+        <Link to="/app/settings">Integrations</Link>
         <Link to="/app/additional">Additional page</Link>
       </NavMenu>
       <Outlet />
