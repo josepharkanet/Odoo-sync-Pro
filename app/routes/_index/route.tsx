@@ -3,6 +3,7 @@ import { redirect } from "@remix-run/node";
 import { Form, useLoaderData } from "@remix-run/react";
 
 import { login } from "../../shopify.server";
+import { Logo } from "../../components/Logo";
 
 import styles from "./styles.module.css";
 
@@ -22,36 +23,51 @@ export default function App() {
   return (
     <div className={styles.index}>
       <div className={styles.content}>
-        <h1 className={styles.heading}>A short heading about [your app]</h1>
+        <div className={styles.brand}>
+          <Logo size={40} />
+        </div>
+
+        <h1 className={styles.heading}>Turn your warehouses into a delivery promise.</h1>
         <p className={styles.text}>
-          A tagline about [your app] that describes your value proposition.
+          StockPromise shows every shopper a real, stock-aware delivery date — same-day when the
+          item is in their nearest warehouse, an honest ETA when it ships from further away.
         </p>
+
         {showForm && (
           <Form className={styles.form} method="post" action="/auth/login">
             <label className={styles.label}>
-              <span>Shop domain</span>
-              <input className={styles.input} type="text" name="shop" />
-              <span>e.g: my-shop-domain.myshopify.com</span>
+              <span>Install on your store</span>
+              <input
+                className={styles.input}
+                type="text"
+                name="shop"
+                placeholder="my-shop.myshopify.com"
+              />
             </label>
             <button className={styles.button} type="submit">
               Log in
             </button>
           </Form>
         )}
+
         <ul className={styles.list}>
           <li>
-            <strong>Product feature</strong>. Some detail about your feature and
-            its benefit to your customer.
+            <strong>Same-day, done right.</strong> Promises same-day only when the nearest
+            warehouse can actually deliver.
           </li>
           <li>
-            <strong>Product feature</strong>. Some detail about your feature and
-            its benefit to your customer.
+            <strong>Never oversell.</strong> Out of stock everywhere? The product shows sold-out
+            automatically.
           </li>
           <li>
-            <strong>Product feature</strong>. Some detail about your feature and
-            its benefit to your customer.
+            <strong>Fits your stack.</strong> Reads Shopify locations or connects to Odoo. Arabic
+            &amp; English out of the box.
           </li>
         </ul>
+
+        <p className={styles.footer}>
+          An <strong>Arkanet</strong> product
+        </p>
       </div>
     </div>
   );
