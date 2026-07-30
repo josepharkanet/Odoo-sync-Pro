@@ -29,8 +29,8 @@ export default function App() {
 
         <h1 className={styles.heading}>Turn your warehouses into a delivery promise.</h1>
         <p className={styles.text}>
-          StockPromise shows every shopper a real, stock-aware delivery date — same-day when the
-          item is in their nearest warehouse, an honest ETA when it ships from further away.
+          Show every shopper a real, stock-aware delivery date: same-day when the item is in their
+          nearest warehouse, and an honest ETA when it ships from further away.
         </p>
 
         {showForm && (

@@ -68,17 +68,17 @@ function Step({
 export default function Index() {
   return (
     <Page>
-      <TitleBar title="StockPromise" />
+      <TitleBar title="Arkanet Odoo Connector" />
       <BlockStack gap="500">
         <Card>
           <InlineStack gap="400" blockAlign="center" wrap={false}>
             <LogoMark size={52} />
             <BlockStack gap="100">
               <Text as="h1" variant="headingLg">
-                StockPromise
+                Arkanet Odoo Connector
               </Text>
               <Text as="p" tone="subdued">
-                Stock-aware delivery promises for multi-warehouse stores — by Arkanet.
+                Stock-aware delivery promises for multi-warehouse stores.
               </Text>
             </BlockStack>
           </InlineStack>
