@@ -7,6 +7,13 @@ client_id = "8364d84e0b554fc670721e79ccc390cc"
 # promises, and tags orders / writes the promised delivery date back.
 scopes = "read_products,read_inventory,read_locations,read_orders,write_orders"
 
+[app_proxy]
+# Storefront calls /apps/stockpromise/delivery → this app's /delivery route.
+# `url` becomes the app URL; `shopify app dev` updates it to the dev tunnel.
+url = "https://example.com"
+subpath = "stockpromise"
+prefix = "apps"
+
 [webhooks]
 api_version = "2025-01"
 

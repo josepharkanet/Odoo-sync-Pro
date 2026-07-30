@@ -1,0 +1,54 @@
+{% comment %}
+  StockPromise — delivery promise app block.
+  Merchant adds this to the product template. It shows an area selector and a
+  live "same-day / delivered-by / sold-out" badge, powered by the app proxy.
+{% endcomment %}
+
+<div
+  class="sp-delivery"
+  data-sp-widget
+  data-variant="{{ product.selected_or_first_available_variant.id }}"
+  data-proxy="/apps/{{ block.settings.proxy_subpath | default: 'stockpromise' }}/delivery"
+  data-label-select="{{ block.settings.select_label | escape }}"
+  data-label-same-day="{{ block.settings.same_day_label | escape }}"
+  data-label-next-day="{{ block.settings.next_day_label | escape }}"
+  data-label-dated="{{ block.settings.dated_label | escape }}"
+  data-label-soldout="{{ block.settings.soldout_label | escape }}"
+  style="--sp-accent: {{ block.settings.accent | default: '#B87253' }};"
+>
+  <div class="sp-delivery__badge sp-status--select">{{ block.settings.select_label }}</div>
+</div>
+
+{% schema %}
+{
+  "name": "Delivery promise",
+  "target": "section",
+  "stylesheet": "delivery.css",
+  "javascript": "delivery.js",
+  "settings": [
+    {
+      "type": "text",
+      "id": "proxy_subpath",
+      "label": "App proxy subpath",
+      "default": "stockpromise",
+      "info": "Must match the app's App Proxy subpath."
+    },
+    { "type": "color", "id": "accent", "label": "Accent color", "default": "#B87253" },
+    {
+      "type": "text",
+      "id": "select_label",
+      "label": "Select-area prompt",
+      "default": "Select your area for delivery time"
+    },
+    { "type": "text", "id": "same_day_label", "label": "Same-day label", "default": "Same-day delivery" },
+    { "type": "text", "id": "next_day_label", "label": "Next-day label", "default": "Next-day delivery" },
+    {
+      "type": "text",
+      "id": "dated_label",
+      "label": "Dated label (use {date})",
+      "default": "Delivery by {date}"
+    },
+    { "type": "text", "id": "soldout_label", "label": "Sold-out label", "default": "Sold out" }
+  ]
+}
+{% endschema %}

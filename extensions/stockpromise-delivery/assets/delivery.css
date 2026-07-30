@@ -1,0 +1,44 @@
+.sp-delivery {
+  font-family: inherit;
+  margin: 12px 0;
+  display: grid;
+  gap: 8px;
+}
+.sp-delivery__zone {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.sp-delivery__zone-label {
+  font-size: 13px;
+  opacity: 0.7;
+}
+.sp-delivery__select {
+  padding: 6px 10px;
+  border: 1px solid #d9d2cc;
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+  color: inherit;
+}
+.sp-delivery__badge {
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.2;
+}
+.sp-status--same_day { background: rgba(46, 125, 50, 0.12); color: #1b5e20; }
+.sp-status--next_day { background: rgba(184, 114, 83, 0.16); color: #8a4b32; }
+.sp-status--dated    { background: rgba(184, 114, 83, 0.10); color: #8a4b32; }
+.sp-status--sold_out { background: rgba(198, 40, 40, 0.12); color: #b71c1c; }
+.sp-status--select   { background: #f4f2f0; color: #555; }
+.sp-delivery__hint {
+  font-size: 12px;
+  opacity: 0.6;
+}
+.sp-delivery.is-loading { opacity: 0.55; }
+
+[dir="rtl"] .sp-delivery__zone { flex-direction: row-reverse; }
