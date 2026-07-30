@@ -1,6 +1,6 @@
 # This file stores configurations for your Shopify app.
 
-client_id = ""
+client_id = "8364d84e0b554fc670721e79ccc390cc"
 
 [access_scopes]
 # StockPromise reads per-location inventory + products to compute delivery
