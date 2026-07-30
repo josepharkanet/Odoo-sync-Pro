@@ -2,12 +2,11 @@
 
 client_id = "8364d84e0b554fc670721e79ccc390cc"
 name = "Odoo sync Pro"
-application_url = "https://example.com"
+application_url = "https://x10n95v5hweacr6mxxvj8p1w.2.24.130.10.sslip.io"
 embedded = true
 
 [build]
 automatically_update_urls_on_dev = true
-include_config_on_deploy = true
 
 [access_scopes]
 # StockPromise reads per-location inventory + products to compute delivery
@@ -16,15 +15,15 @@ scopes = "read_products,read_inventory,read_locations,read_orders,write_orders"
 
 [auth]
 redirect_urls = [
-  "https://example.com/auth/callback",
-  "https://example.com/auth/shopify/callback",
-  "https://example.com/api/auth/callback",
+  "https://x10n95v5hweacr6mxxvj8p1w.2.24.130.10.sslip.io/auth/callback",
+  "https://x10n95v5hweacr6mxxvj8p1w.2.24.130.10.sslip.io/auth/shopify/callback",
+  "https://x10n95v5hweacr6mxxvj8p1w.2.24.130.10.sslip.io/api/auth/callback",
 ]
 
 [app_proxy]
 # Storefront calls /apps/stockpromise/delivery → this app's /delivery route.
 # `url` becomes the app URL; `shopify app dev` updates it to the dev tunnel.
-url = "https://example.com"
+url = "https://x10n95v5hweacr6mxxvj8p1w.2.24.130.10.sslip.io"
 subpath = "stockpromise"
 prefix = "apps"
 
