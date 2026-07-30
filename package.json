@@ -1,0 +1,10 @@
+{
+  "name": "stockpromise",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Stock-aware delivery-promise app for Shopify — shows shoppers same-day / ETA based on which warehouse has the item. Connector-agnostic.",
+  "scripts": {
+    "test:engine": "node test/engine.run.mjs"
+  }
+}
