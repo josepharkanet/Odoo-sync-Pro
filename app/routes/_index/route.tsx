@@ -36,7 +36,7 @@ export default function App() {
         {showForm && (
           <Form className={styles.form} method="post" action="/auth/login">
             <label className={styles.label}>
-              <span>Install on your store</span>
+              <span>Connect your store</span>
               <input
                 className={styles.input}
                 type="text"
@@ -45,7 +45,7 @@ export default function App() {
               />
             </label>
             <button className={styles.button} type="submit">
-              Log in
+              Connect store
             </button>
           </Form>
         )}
