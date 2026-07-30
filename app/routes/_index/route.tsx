@@ -1,6 +1,7 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import { Form, useLoaderData } from "@remix-run/react";
+import { useRef } from "react";
 
 import { login } from "../../shopify.server";
 import { Logo } from "../../components/Logo";
@@ -17,6 +18,19 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   return { showForm: Boolean(login) };
 };
 
+// Accept a store name, a full .myshopify.com domain, or a pasted admin URL,
+// and turn it into the myshopify domain Shopify expects.
+function normalizeShop(raw: string): string {
+  let s = (raw || "").trim().toLowerCase();
+  if (!s) return s;
+  const admin = s.match(/admin\.shopify\.com\/store\/([a-z0-9][a-z0-9-]*)/);
+  if (admin) return `${admin[1]}.myshopify.com`;
+  s = s.replace(/^https?:\/\//, "").replace(/\/.*$/, "");
+  if (s.endsWith(".myshopify.com")) return s;
+  if (s.includes(".")) return s;
+  return `${s}.myshopify.com`;
+}
+
 const FEATURES = [
   { t: "Same-day, done right", d: "Promises same-day only when the nearest warehouse can actually deliver." },
   { t: "Honest fallback ETA", d: "Ships from another warehouse? Shoppers see a real delivery date, not a guess." },
@@ -28,6 +42,11 @@ const FEATURES = [
 
 export default function App() {
   const { showForm } = useLoaderData<typeof loader>();
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleSubmit = () => {
+    if (inputRef.current) inputRef.current.value = normalizeShop(inputRef.current.value);
+  };
 
   return (
     <div className={styles.page}>
@@ -43,19 +62,24 @@ export default function App() {
         </p>
 
         {showForm && (
-          <Form className={styles.install} method="post" action="/auth/login">
+          <Form className={styles.install} method="post" action="/auth/login" onSubmit={handleSubmit}>
             <span className={styles.installLabel}>Connect your Shopify store to install</span>
             <div className={styles.installRow}>
               <input
+                ref={inputRef}
                 className={styles.input}
                 type="text"
                 name="shop"
-                placeholder="your-store.myshopify.com"
+                placeholder="your store name or your-store.myshopify.com"
               />
               <button className={styles.button} type="submit">
                 Connect store
               </button>
             </div>
+            <span className={styles.installHint}>
+              Type your store name (like "elixir"), the full .myshopify.com address, or paste your
+              admin URL. We handle the rest.
+            </span>
           </Form>
         )}
       </section>
