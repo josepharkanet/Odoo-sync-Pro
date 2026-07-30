@@ -3,7 +3,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { computePromise } from "../src/engine.js";
+import { computePromise } from "../app/lib/engine.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const config = JSON.parse(readFileSync(join(here, "../config/example-elixir.json"), "utf8"));
