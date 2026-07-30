@@ -1,11 +1,25 @@
 # This file stores configurations for your Shopify app.
 
 client_id = "8364d84e0b554fc670721e79ccc390cc"
+name = "Odoo sync Pro"
+application_url = "https://example.com"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = true
+include_config_on_deploy = true
 
 [access_scopes]
 # StockPromise reads per-location inventory + products to compute delivery
 # promises, and tags orders / writes the promised delivery date back.
 scopes = "read_products,read_inventory,read_locations,read_orders,write_orders"
+
+[auth]
+redirect_urls = [
+  "https://example.com/auth/callback",
+  "https://example.com/auth/shopify/callback",
+  "https://example.com/api/auth/callback",
+]
 
 [app_proxy]
 # Storefront calls /apps/stockpromise/delivery → this app's /delivery route.
