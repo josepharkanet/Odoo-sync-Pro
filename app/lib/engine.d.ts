@@ -22,6 +22,7 @@ export interface Warehouse {
   id: string;
   name: string;
   shopifyLocationId?: string;
+  odooWarehouseId?: number; // Odoo stock.warehouse id, for reading Odoo stock
 }
 
 export interface DeliveryConfig {

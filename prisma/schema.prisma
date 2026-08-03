@@ -48,5 +48,24 @@ model Integration {
   odooDb     String?
   odooLogin  String?
   odooKeyEnc String?
+  matchBy    String?  // "barcode" (default) | "sku" — how Shopify lines map to Odoo products
+  pushOrders Boolean  @default(true) // create a sale.order in Odoo on each new Shopify order
   updatedAt  DateTime @updatedAt
+}
+
+// One row per Shopify order we pushed to Odoo — powers idempotency + the
+// "recent syncs" panel in the admin.
+model OrderSync {
+  shop             String
+  shopifyOrderId   String
+  shopifyOrderName String?
+  status           String // "synced" | "error"
+  odooOrderId      Int?
+  odooOrderName    String?
+  error            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@id([shop, shopifyOrderId])
+  @@index([shop, updatedAt])
 }

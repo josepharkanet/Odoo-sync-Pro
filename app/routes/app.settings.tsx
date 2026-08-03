@@ -10,12 +10,17 @@ import {
   TextField,
   Button,
   Banner,
+  Select,
+  Checkbox,
+  Badge,
+  Divider,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { useState } from "react";
 import { authenticate } from "../shopify.server";
 import { getIntegration, getOdooApiKey, saveIntegration } from "../lib/integration.server";
 import { testOdoo } from "../lib/odoo.server";
+import { odooStockCheck, recentSyncs } from "../lib/odoo-sync.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { admin, session } = await authenticate.admin(request);
@@ -33,7 +38,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     /* locations are a convenience; ignore failures */
   }
 
-  return { integ, locations };
+  const syncs = await recentSyncs(session.shop, 10);
+  return { integ, locations, syncs };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -59,15 +65,24 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   if (intent === "save") {
-    await saveIntegration(session.shop, { odooUrl, odooDb, odooLogin, odooKey });
+    const matchBy = form.get("matchBy") === "sku" ? "sku" : "barcode";
+    const pushOrders = form.get("pushOrders") === "on";
+    await saveIntegration(session.shop, { odooUrl, odooDb, odooLogin, odooKey, matchBy, pushOrders });
     return { saved: true };
+  }
+
+  if (intent === "stockcheck") {
+    const value = String(form.get("stockValue") ?? "").trim();
+    if (!value) return { stock: { ok: false, error: "Enter a barcode or SKU to look up." } };
+    const stock = await odooStockCheck(session.shop, value);
+    return { stock };
   }
 
   return {};
 }
 
 export default function SettingsPage() {
-  const { integ, locations } = useLoaderData<typeof loader>();
+  const { integ, locations, syncs } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>() as any;
   const nav = useNavigation();
   const busy = nav.state === "submitting";
@@ -76,24 +91,31 @@ export default function SettingsPage() {
   const [odooDb, setOdooDb] = useState(integ.odooDb);
   const [odooLogin, setOdooLogin] = useState(integ.odooLogin);
   const [odooKey, setOdooKey] = useState("");
+  const [matchBy, setMatchBy] = useState<string>(integ.matchBy);
+  const [pushOrders, setPushOrders] = useState<boolean>(integ.pushOrders);
+  const [stockValue, setStockValue] = useState("");
 
   const test = actionData?.testResult;
+  const stock = actionData?.stock;
 
   return (
     <Page>
-      <TitleBar title="Integrations" />
+      <TitleBar title="Odoo integration" />
       <Layout>
         <Layout.Section>
           <Card>
             <Form method="post">
+              <input type="hidden" name="matchBy" value={matchBy} />
+              <input type="hidden" name="pushOrders" value={pushOrders ? "on" : "off"} />
               <BlockStack gap="400">
                 <BlockStack gap="100">
                   <Text as="h2" variant="headingMd">
                     Odoo connection
                   </Text>
                   <Text as="p" tone="subdued">
-                    StockPromise can read live stock straight from your Odoo warehouses.
-                    Create an API key in Odoo (developer mode → your user → API Keys).
+                    Connect your Odoo so this app can read live warehouse stock and create a
+                    sale order in Odoo for every new Shopify order. Create an API key in Odoo
+                    (Settings → Users → your API user → New API Key, developer mode on).
                   </Text>
                 </BlockStack>
 
@@ -139,6 +161,25 @@ export default function SettingsPage() {
                   }
                 />
 
+                <Divider />
+
+                <Select
+                  label="Match Shopify products to Odoo by"
+                  options={[
+                    { label: "Barcode", value: "barcode" },
+                    { label: "SKU / internal reference", value: "sku" },
+                  ]}
+                  value={matchBy}
+                  onChange={setMatchBy}
+                  helpText="Barcode → Odoo barcode. SKU → Odoo internal reference (default_code)."
+                />
+                <Checkbox
+                  label="Create an Odoo sale order for each new Shopify order"
+                  checked={pushOrders}
+                  onChange={setPushOrders}
+                  helpText="Turn off to pause order pushing without disconnecting Odoo."
+                />
+
                 <InlineStack gap="300">
                   <Button submit name="intent" value="save" variant="primary" loading={busy}>
                     Save
@@ -159,7 +200,8 @@ export default function SettingsPage() {
                 Your Shopify locations
               </Text>
               <Text as="p" tone="subdued">
-                Use these IDs as <code>shopifyLocationId</code> for each warehouse in Delivery rules.
+                Use these IDs as <code>shopifyLocationId</code> for each warehouse in Delivery
+                rules, and set each warehouse&apos;s <code>odooWarehouseId</code> there too.
               </Text>
               {locations.length === 0 && (
                 <Text as="p" tone="subdued">
@@ -175,6 +217,94 @@ export default function SettingsPage() {
                     {loc.id}
                   </Text>
                 </BlockStack>
+              ))}
+            </BlockStack>
+          </Card>
+        </Layout.Section>
+
+        <Layout.Section>
+          <Card>
+            <Form method="post">
+              <BlockStack gap="300">
+                <Text as="h2" variant="headingMd">
+                  Check Odoo stock
+                </Text>
+                <Text as="p" tone="subdued">
+                  Look up a product by {integ.matchBy} and see its on-hand quantity in each
+                  mapped warehouse. Proves the connection reads real Odoo stock.
+                </Text>
+                <InlineStack gap="300" blockAlign="end">
+                  <div style={{ minWidth: 260 }}>
+                    <TextField
+                      label={integ.matchBy === "sku" ? "SKU" : "Barcode"}
+                      labelHidden
+                      value={stockValue}
+                      onChange={setStockValue}
+                      name="stockValue"
+                      placeholder={integ.matchBy === "sku" ? "Internal reference" : "Barcode"}
+                      autoComplete="off"
+                    />
+                  </div>
+                  <Button submit name="intent" value="stockcheck" loading={busy}>
+                    Look up
+                  </Button>
+                </InlineStack>
+
+                {stock && !stock.ok && <Banner tone="critical">{stock.error}</Banner>}
+                {stock && stock.ok && (
+                  <BlockStack gap="200">
+                    <Text as="p" variant="bodyMd" fontWeight="semibold">
+                      {stock.product.name}
+                      {stock.product.barcode ? ` · ${stock.product.barcode}` : ""}
+                    </Text>
+                    {stock.byWarehouse.map((w: any) => (
+                      <InlineStack key={w.id} gap="200" align="space-between">
+                        <Text as="span">
+                          {w.name}
+                          {!w.mapped ? " (no odooWarehouseId set)" : ""}
+                        </Text>
+                        <Text as="span" fontWeight="semibold">
+                          {w.mapped ? `${w.qty} in stock` : "—"}
+                        </Text>
+                      </InlineStack>
+                    ))}
+                  </BlockStack>
+                )}
+              </BlockStack>
+            </Form>
+          </Card>
+        </Layout.Section>
+
+        <Layout.Section>
+          <Card>
+            <BlockStack gap="300">
+              <Text as="h2" variant="headingMd">
+                Recent order syncs
+              </Text>
+              {syncs.length === 0 && (
+                <Text as="p" tone="subdued">
+                  No orders synced yet. New Shopify orders will appear here once Odoo is connected.
+                </Text>
+              )}
+              {syncs.map((s: any) => (
+                <InlineStack key={s.shopifyOrderId} gap="300" align="space-between" blockAlign="center">
+                  <BlockStack gap="050">
+                    <Text as="span" fontWeight="semibold">
+                      {s.shopifyOrderName || s.shopifyOrderId}
+                    </Text>
+                    {s.error && (
+                      <Text as="span" tone="subdued" variant="bodySm">
+                        {s.error}
+                      </Text>
+                    )}
+                  </BlockStack>
+                  <InlineStack gap="200" blockAlign="center">
+                    {s.odooOrderName && <Text as="span" tone="subdued">{s.odooOrderName}</Text>}
+                    <Badge tone={s.status === "synced" ? "success" : "critical"}>
+                      {s.status === "synced" ? "Synced" : "Error"}
+                    </Badge>
+                  </InlineStack>
+                </InlineStack>
               ))}
             </BlockStack>
           </Card>
